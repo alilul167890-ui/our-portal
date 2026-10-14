@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مساحتنا الخاصة | م. بطوط & د. قطوطة</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- مكتبات Firebase السحابية -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
     <style>
         :root {
             --bg: #fffafb;
@@ -33,7 +38,7 @@
         .timer-box span { display: block; font-size: 1.1rem; font-weight: bold; color: var(--primary); }
         
         .nav-tabs { display: flex; flex-wrap: wrap; gap: 4px; background: #fff; padding: 5px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border); }
-        .tab-btn { background: transparent; color: #666; padding: 8px 2px; border-radius: 8px; font-size: 0.78rem; flex: 1 1 18%; margin: 0; }
+        .tab-btn { background: transparent; color: #666; padding: 8px 2px; border-radius: 8px; font-size: 0.75rem; flex: 1 1 23%; margin: 0; }
         .tab-btn.active { background: var(--primary); color: #fff; }
         
         .tab-section { display: none; }
@@ -55,10 +60,10 @@
 
 <div class="container">
 
-    <!-- شاشة الدخول الرئيسية الأصليّة بدون تلميح -->
+    <!-- شاشة الدخول الرئيسية -->
     <div id="login-screen" class="card">
         <h2>🔒 عالمنا الخاص</h2>
-        <p>أدخل كلمة السر للدخول عالم م. بطوط & د. قطوطة</p>
+        <p>أدخل كلمة السر لدخول عالم م. بطوط & د. قطوطة</p>
         <input type="password" id="passInput" placeholder="كلمة السر">
         <button type="button" onclick="checkPassword()">دخول</button>
         <p id="errMsg" style="color:red; display:none; margin-top:10px;">كلمة السر غير صحيحة!</p>
@@ -88,6 +93,8 @@
             <button type="button" class="tab-btn active" onclick="switchTab('diaries', this)">📖 اليوميات</button>
             <button type="button" class="tab-btn" onclick="switchTab('complaints', this)">⚠️ شكوى</button>
             <button type="button" class="tab-btn" onclick="switchTab('rating', this)">📊 التقييم</button>
+            <button type="button" class="tab-btn" onclick="switchTab('guide', this)">💡 دليل القلوب</button>
+            <button type="button" class="tab-btn" onclick="switchTab('wishes', this)">🌟 الأهداف</button>
             <button type="button" class="tab-btn" onclick="switchTab('gallery', this)">🖼️ اللحظات</button>
             <button type="button" class="tab-btn" onclick="switchTab('capsule', this)">🔒 الكبسولة</button>
         </div>
@@ -95,11 +102,11 @@
         <!-- قسم اليوميات -->
         <div id="diaries" class="tab-section active">
             <div class="card">
-                <h3 id="diaryTitle">✍️ احكيلي يومك يا بطتي 🦆</h3>
+                <h3 id="diaryTitle">✍️ احكيلي يومك يا بطتي </h3>
                 <label>الكاتب:</label>
                 <select id="authorSelect" onchange="updateAuthorTitle()">
-                    <option value="م. بطوط 👷‍♂️🦆">م. بطوط 👷‍♂️🦆</option>
-                    <option value="د. قطوطة 🩺🐱">د. قطوطة 🩺🐱</option>
+                    <option value="م. بطوط 👷‍♂️">م. بطوط 👷‍♂️</option>
+                    <option value="د. قطوطة 🩺">د. قطوطة 🩺🐱</option>
                 </select>
 
                 <label>الشعور الآن:</label>
@@ -154,7 +161,7 @@
             </div>
         </div>
 
-        <!-- قسم التقييم -->
+        <!-- قسم التقييم المحدث -->
         <div id="rating" class="tab-section">
             <div class="card">
                 <h3>📊 تقييم النهاردة</h3>
@@ -173,6 +180,9 @@
                 <label>اهتميت بيك بنسبة: ❤️</label>
                 <select id="rCare"><option value="">اختر النسبة...</option><option>100%</option><option>80%</option><option>60%</option><option>40%</option><option>20%</option></select>
 
+                <label>الأدب والذوق بنسبة: 😇</label>
+                <select id="rManners"><option value="">اختر النسبة...</option><option>100%</option><option>80%</option><option>60%</option><option>40%</option><option>20%</option></select>
+
                 <label>زعلتك بنسبة: 🥺</label>
                 <select id="rSad"><option value="">اختر النسبة...</option><option>0%</option><option>20%</option><option>40%</option><option>60%</option><option>80%</option><option>100%</option></select>
 
@@ -182,6 +192,9 @@
                 <label>قصرت معاك بنسبة: 💔</label>
                 <select id="rShort"><option value="">اختر النسبة...</option><option>0%</option><option>20%</option><option>40%</option><option>60%</option><option>80%</option><option>100%</option></select>
 
+                <label>البرود بنسبة: ❄️</label>
+                <select id="rCold"><option value="">اختر النسبة...</option><option>0%</option><option>20%</option><option>40%</option><option>60%</option><option>80%</option><option>100%</option></select>
+
                 <label>ملاحظات إضافية:</label>
                 <textarea id="rNotes" rows="2" placeholder="ملاحظات التقييم..."></textarea>
 
@@ -190,6 +203,51 @@
             <div class="card">
                 <h3>📜 سجل التقييمات</h3>
                 <div id="rateContainer"></div>
+            </div>
+        </div>
+
+        <!-- قسم دليل القلوب الجديد -->
+        <div id="guide" class="tab-section">
+            <div class="card">
+                <h3>💡 أضيف لملاحظات دليل القلوب</h3>
+                <label>الكاتب:</label>
+                <select id="guideAuthor">
+                    <option value="م. بطوط 👷‍♂️">م. بطوط 👷‍♂️</option>
+                    <option value="د. قطوطة 🩺">د. قطوطة 🩺🐱</option>
+                </select>
+
+                <label>نوع الملاحظة:</label>
+                <select id="guideType">
+                    <option value="تفاصيل بتفرحني ✨">تفاصيل بتفرحني ✨</option>
+                    <option value="مواقف بتزعلني 🥺">مواقف بتزعلني 🥺</option>
+                    <option value="حاجات مفضلة ليا ❤️">حاجات مفضلة ليا ❤️</option>
+                </select>
+
+                <textarea id="guideText" rows="3" placeholder="اكتب الملاحظة بالتفصيل هنا..."></textarea>
+                <button type="button" onclick="confirmAndSave('guide')">إضافة للدليل 💡</button>
+            </div>
+            <div class="card">
+                <h3>📖 كتاب دليل القلوب المشترك</h3>
+                <div id="guideContainer"></div>
+            </div>
+        </div>
+
+        <!-- قسم الأهداف والأمنيات -->
+        <div id="wishes" class="tab-section">
+            <div class="card">
+                <h3>🌟 أمنية أو هدف مشترك</h3>
+                <label>صاحب الفكرة:</label>
+                <select id="wishAuthor">
+                    <option value="م. بطوط 👷‍♂️">م. بطوط 👷‍♂️</option>
+                    <option value="د. قطوطة 🩺">د. قطوطة 🩺🐱</option>
+                </select>
+                <input type="text" id="wishTitle" placeholder="عنوان الأمنية أو المكان...">
+                <textarea id="wishText" rows="2" placeholder="تفاصيل الخطّة أو الفكرة..."></textarea>
+                <button type="button" onclick="confirmAndSave('wish')">إضافة للأهداف 🎯</button>
+            </div>
+            <div class="card">
+                <h3>قائمة أمنياتنا المستقبليّة ✨</h3>
+                <div id="wishContainer"></div>
             </div>
         </div>
 
@@ -230,6 +288,20 @@
 </div>
 
 <script>
+    // إعدادات Firebase الخاصة بك
+    const firebaseConfig = {
+      apiKey: "AIzaSyBV0igo0Nm-8VJHj9qItMx0lOrECdKCj1s",
+      authDomain: "alii-ed72e.firebaseapp.com",
+      projectId: "alii-ed72e",
+      storageBucket: "alii-ed72e.firebasestorage.app",
+      messagingSenderId: "68913108218",
+      appId: "1:68913108218:web:c0f14a0fcf31799dc82543",
+      measurementId: "G-RXCB3KTC4F"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
     var SECRET = "1234";
     var startDate = new Date("2024-03-28T00:00:00");
 
@@ -258,11 +330,7 @@
         document.getElementById('entryTime').value = now.toISOString().slice(0, 16);
         document.getElementById('unlockDate').min = new Date().toISOString().split('T')[0];
 
-        loadEntries();
-        loadComplaints();
-        loadRatings();
-        loadGallery();
-        loadCapsules();
+        loadDataRealtime();
     }
 
     function updateAuthorTitle() {
@@ -282,11 +350,131 @@
             if (type === 'diary') saveDiary();
             if (type === 'complaint') saveComplaint();
             if (type === 'rating') saveRating();
+            if (type === 'guide') saveGuide();
+            if (type === 'wish') saveWish();
             if (type === 'photo') savePhoto();
             if (type === 'capsule') saveCapsule();
         }
     }
 
+    // الاستماع للبيانات من Firebase وتحديثها لحظياً
+    function loadDataRealtime() {
+        // اليوميات
+        db.ref('diaries').on('value', function(snapshot) {
+            var container = document.getElementById("diaryContainer");
+            var data = snapshot.val();
+            if (!data) { container.innerHTML = "<p style='text-align:center; color:#999;'>لا توجد تدوينات بعد.</p>"; return; }
+            var entries = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
+            container.innerHTML = entries.map(function(item) {
+                return '<div class="entry">' +
+                    '<div class="entry-header"><span>' + item.author + '</span><span>' + item.mood + '</span></div>' +
+                    (item.priorities ? '<div class="sub-box">📌 <strong>الأولويات:</strong> ' + item.priorities + '</div>' : '') +
+                    (item.story ? '<div class="sub-box">📖 <strong>الموقف:</strong> ' + item.story + '</div>' : '') +
+                    (item.text ? '<div style="margin-top:6px;">' + item.text + '</div>' : '') +
+                    '<div style="font-size:0.75rem; color:#999; margin-top:6px;">📅 ' + item.formattedDate + '</div>' +
+                    '<div class="action-btns"><button type="button" class="btn-sm btn-delete" onclick="deleteItem(\'diaries\', \'' + item.id + '\')">حذف 🗑️</button></div>' +
+                '</div>';
+            }).join('');
+        });
+
+        // الشكاوى
+        db.ref('complaints').on('value', function(snapshot) {
+            var container = document.getElementById("complaintContainer");
+            var data = snapshot.val();
+            if (!data) { container.innerHTML = "<p style='text-align:center; color:#999;'>لا توجد شكاوى مسجلة.</p>"; return; }
+            var complaints = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
+            container.innerHTML = complaints.map(function(c) {
+                return '<div class="entry" style="border-right-color:#e63946;">' +
+                    '<div class="entry-header" style="color:#e63946;"><span>الشاكي: ' + c.complainant + '</span></div>' +
+                    '<div class="sub-box">⚠️ <strong>الشكوى:</strong> ' + c.text + '</div>' +
+                    '<div style="font-size:0.75rem; color:#999; margin-top:6px;">📅 ' + c.date + '</div>' +
+                    '<div class="action-btns"><button type="button" class="btn-sm btn-delete" onclick="deleteItem(\'complaints\', \'' + c.id + '\')">حذف 🗑️</button></div>' +
+                '</div>';
+            }).join('');
+        });
+
+        // التقييمات المحدثة
+        db.ref('ratings').on('value', function(snapshot) {
+            var container = document.getElementById("rateContainer");
+            var data = snapshot.val();
+            if (!data) { container.innerHTML = "<p style='text-align:center; color:#999;'>لا توجد تقييمات بعد.</p>"; return; }
+            var ratings = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
+            container.innerHTML = ratings.map(function(r) {
+                return '<div class="entry">' +
+                    '<div class="entry-header"><span>المقيّم: ' + r.rater + '</span><span>📅 ' + r.date + '</span></div>' +
+                    '<div class="sub-box">😄 فرحتك: ' + r.happy + ' | 🥰 دلعتك: ' + r.pamper + ' | ❤️ اهتميت: ' + r.care + '</div>' +
+                    '<div class="sub-box">😇 الأدب: ' + (r.manners || '100%') + ' | 🥺 زعلتك: ' + r.sad + ' | 😤 ضايقتك: ' + r.annoy + '</div>' +
+                    '<div class="sub-box">💔 قصرت: ' + r.short + ' | ❄️ البرود: ' + (r.cold || '0%') + '</div>' +
+                    (r.notes ? '<div style="margin-top:6px;"><strong>ملاحظات:</strong> ' + r.notes + '</div>' : '') +
+                    '<div class="action-btns"><button type="button" class="btn-sm btn-delete" onclick="deleteItem(\'ratings\', \'' + r.id + '\')">حذف 🗑️</button></div>' +
+                '</div>';
+            }).join('');
+        });
+
+        // دليل القلوب
+        db.ref('guides').on('value', function(snapshot) {
+            var container = document.getElementById("guideContainer");
+            var data = snapshot.val();
+            if (!data) { container.innerHTML = "<p style='text-align:center; color:#999;'>لا توجد ملاحظات مسجلة بعد.</p>"; return; }
+            var items = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
+            container.innerHTML = items.map(function(g) {
+                return '<div class="entry">' +
+                    '<div class="entry-header"><span>' + g.author + '</span><span>' + g.type + '</span></div>' +
+                    '<div class="sub-box" style="margin-top:6px;">' + g.text + '</div>' +
+                    '<div class="action-btns"><button type="button" class="btn-sm btn-delete" onclick="deleteItem(\'guides\', \'' + g.id + '\')">حذف 🗑️</button></div>' +
+                '</div>';
+            }).join('');
+        });
+
+        // الأهداف والأمنيات
+        db.ref('wishes').on('value', function(snapshot) {
+            var container = document.getElementById("wishContainer");
+            var data = snapshot.val();
+            if (!data) { container.innerHTML = "<p style='text-align:center; color:#999;'>لا توجد أهداف مسجلة بعد.</p>"; return; }
+            var items = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
+            container.innerHTML = items.map(function(w) {
+                return '<div class="entry" style="border-right-color:#ffb703;">' +
+                    '<div class="entry-header" style="color:#fb8500;"><span>🎯 ' + w.title + '</span><span>بقلم: ' + w.author + '</span></div>' +
+                    (w.text ? '<div class="sub-box">' + w.text + '</div>' : '') +
+                    '<div class="action-btns"><button type="button" class="btn-sm btn-delete" onclick="deleteItem(\'wishes\', \'' + w.id + '\')">حذف 🗑️</button></div>' +
+                '</div>';
+            }).join('');
+        });
+
+        // الألبوم (الصور)
+        db.ref('photos').on('value', function(snapshot) {
+            var container = document.getElementById("galleryContainer");
+            var data = snapshot.val();
+            if (!data) { container.innerHTML = "<p style='text-align:center; color:#999; grid-column: span 2;'>لا توجد صور بعد.</p>"; return; }
+            var photos = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
+            container.innerHTML = photos.map(function(p) {
+                return '<div>' +
+                    '<img src="' + p.url + '" alt="صورة">' +
+                    '<p style="font-size:0.8rem; text-align:center; margin:4px 0;">' + p.caption + '</p>' +
+                    '<button type="button" class="btn-sm btn-delete" style="width:100%;" onclick="deleteItem(\'photos\', \'' + p.id + '\')">حذف 🗑️</button>' +
+                '</div>';
+            }).join('');
+        });
+
+        // كبسولة الزمن
+        db.ref('capsules').on('value', function(snapshot) {
+            var container = document.getElementById("capsuleContainer");
+            var data = snapshot.val();
+            if (!data) { container.innerHTML = "<p style='text-align:center; color:#999;'>لا توجد رسائل موقوتة.</p>"; return; }
+            var capsules = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
+            var todayStr = new Date().toISOString().split('T')[0];
+            container.innerHTML = capsules.map(function(cap) {
+                var canOpen = todayStr >= cap.unlockDate;
+                return '<div class="entry">' +
+                    '<div class="entry-header"><span>الكاتب: ' + cap.author + '</span><span>🔒 تفتح في: ' + cap.unlockDate + '</span></div>' +
+                    (canOpen ? '<div class="sub-box" style="margin-top:8px;">💌 <strong>الرسالة:</strong> ' + cap.text + '</div>' : '<div class="sub-box" style="color:#e63946; margin-top:8px;">🔒 هذه الرسالة مغلقة ولن تفتح إلا في التاريخ المحدد!</div>') +
+                    '<div class="action-btns"><button type="button" class="btn-sm btn-delete" onclick="deleteItem(\'capsules\', \'' + cap.id + '\')">حذف 🗑️</button></div>' +
+                '</div>';
+            }).join('');
+        });
+    }
+
+    // دوال الحفظ السحابية
     function saveDiary() {
         var author = document.getElementById("authorSelect").value;
         var mood = document.getElementById("moodSelect").value;
@@ -297,36 +485,19 @@
 
         if(!text && !story && !priorities) return alert("يرجى ملء خانة واحدة على الأقل!");
 
-        var entries = JSON.parse(localStorage.getItem("app_diaries") || "[]");
         var entryDate = customDate ? new Date(customDate) : new Date();
 
-        entries.unshift({
-            id: Date.now(), author: author, mood: mood, priorities: priorities, story: story, text: text,
+        db.ref('diaries').push({
+            author: author, mood: mood, priorities: priorities, story: story, text: text,
             formattedDate: entryDate.toLocaleString('ar-EG', { dateStyle: 'full', timeStyle: 'short' })
+        }, function(error) {
+            if (!error) {
+                document.getElementById("prioritiesText").value = "";
+                document.getElementById("storyText").value = "";
+                document.getElementById("diaryText").value = "";
+                alert("تم حفظ التدوينة أونلاين بنجاح! ❤️");
+            }
         });
-
-        localStorage.setItem("app_diaries", JSON.stringify(entries));
-        document.getElementById("prioritiesText").value = "";
-        document.getElementById("storyText").value = "";
-        document.getElementById("diaryText").value = "";
-        loadEntries();
-        alert("تم حفظ التدوينة بنجاح! ❤️");
-    }
-
-    function loadEntries() {
-        var container = document.getElementById("diaryContainer");
-        var entries = JSON.parse(localStorage.getItem("app_diaries") || "[]");
-        if(entries.length === 0) { container.innerHTML = "<p style='text-align:center; color:#999;'>لا توجد تدوينات بعد.</p>"; return; }
-        container.innerHTML = entries.map(function(item) {
-            return '<div class="entry">' +
-                '<div class="entry-header"><span>' + item.author + '</span><span>' + item.mood + '</span></div>' +
-                (item.priorities ? '<div class="sub-box">📌 <strong>الأولويات:</strong> ' + item.priorities + '</div>' : '') +
-                (item.story ? '<div class="sub-box">📖 <strong>الموقف:</strong> ' + item.story + '</div>' : '') +
-                (item.text ? '<div style="margin-top:6px;">' + item.text + '</div>' : '') +
-                '<div style="font-size:0.75rem; color:#999; margin-top:6px;">📅 ' + item.formattedDate + '</div>' +
-                '<div class="action-btns"><button type="button" class="btn-sm btn-delete" onclick="deleteItem(\'app_diaries\', ' + item.id + ', loadEntries)">حذف 🗑️</button></div>' +
-            '</div>';
-        }).join('');
     }
 
     function saveComplaint() {
@@ -334,30 +505,15 @@
         var text = document.getElementById("complaintText").value.trim();
         if(!text) return alert("يرجى كتابة تفاصيل الشكوى!");
 
-        var complaints = JSON.parse(localStorage.getItem("app_complaints") || "[]");
-        complaints.unshift({
-            id: Date.now(), complainant: complainant, text: text,
+        db.ref('complaints').push({
+            complainant: complainant, text: text,
             date: new Date().toLocaleString('ar-EG', { dateStyle: 'full', timeStyle: 'short' })
+        }, function(error) {
+            if (!error) {
+                document.getElementById("complaintText").value = "";
+                alert("تم إرسال الشكوى أونلاين! ⚠️");
+            }
         });
-
-        localStorage.setItem("app_complaints", JSON.stringify(complaints));
-        document.getElementById("complaintText").value = "";
-        loadComplaints();
-        alert("تم إرسال الشكوى! ⚠️");
-    }
-
-    function loadComplaints() {
-        var container = document.getElementById("complaintContainer");
-        var complaints = JSON.parse(localStorage.getItem("app_complaints") || "[]");
-        if(complaints.length === 0) { container.innerHTML = "<p style='text-align:center; color:#999;'>لا توجد شكاوى مسجلة.</p>"; return; }
-        container.innerHTML = complaints.map(function(c) {
-            return '<div class="entry" style="border-right-color:#e63946;">' +
-                '<div class="entry-header" style="color:#e63946;"><span>الشاكي: ' + c.complainant + '</span></div>' +
-                '<div class="sub-box">⚠️ <strong>الشكوى:</strong> ' + c.text + '</div>' +
-                '<div style="font-size:0.75rem; color:#999; margin-top:6px;">📅 ' + c.date + '</div>' +
-                '<div class="action-btns"><button type="button" class="btn-sm btn-delete" onclick="deleteItem(\'app_complaints\', ' + c.id + ', loadComplaints)">حذف 🗑️</button></div>' +
-            '</div>';
-        }).join('');
     }
 
     function saveRating() {
@@ -365,121 +521,109 @@
         var happy = document.getElementById("rHappy").value;
         var pamper = document.getElementById("rPamper").value;
         var care = document.getElementById("rCare").value;
+        var manners = document.getElementById("rManners").value;
         var sad = document.getElementById("rSad").value;
         var annoy = document.getElementById("rAnnoy").value;
         var short = document.getElementById("rShort").value;
+        var cold = document.getElementById("rCold").value;
 
-        if(!happy || !pamper || !care || !sad || !annoy || !short) {
+        if(!happy || !pamper || !care || !manners || !sad || !annoy || !short || !cold) {
             return alert("يرجى اختيار جميع نسب التقييم أولاً!");
         }
 
-        var ratings = JSON.parse(localStorage.getItem("app_ratings") || "[]");
-        ratings.unshift({
-            id: Date.now(), rater: rater, happy: happy, pamper: pamper, care: care, sad: sad, annoy: annoy, short: short,
+        db.ref('ratings').push({
+            rater: rater, happy: happy, pamper: pamper, care: care, manners: manners, sad: sad, annoy: annoy, short: short, cold: cold,
             notes: document.getElementById("rNotes").value.trim(),
             date: new Date().toLocaleDateString('ar-EG', { dateStyle: 'full' })
+        }, function(error) {
+            if (!error) {
+                document.getElementById("rHappy").value = "";
+                document.getElementById("rPamper").value = "";
+                document.getElementById("rCare").value = "";
+                document.getElementById("rManners").value = "";
+                document.getElementById("rSad").value = "";
+                document.getElementById("rAnnoy").value = "";
+                document.getElementById("rShort").value = "";
+                document.getElementById("rCold").value = "";
+                document.getElementById("rNotes").value = "";
+                alert("تم إرسال التقييم بنجاح! 📊");
+            }
         });
-
-        localStorage.setItem("app_ratings", JSON.stringify(ratings));
-        
-        document.getElementById("rHappy").value = "";
-        document.getElementById("rPamper").value = "";
-        document.getElementById("rCare").value = "";
-        document.getElementById("rSad").value = "";
-        document.getElementById("rAnnoy").value = "";
-        document.getElementById("rShort").value = "";
-        document.getElementById("rNotes").value = "";
-
-        loadRatings();
-        alert("تم إرسال التقييم بنجاح! 📊");
     }
 
-    function loadRatings() {
-        var container = document.getElementById("rateContainer");
-        var ratings = JSON.parse(localStorage.getItem("app_ratings") || "[]");
-        if(ratings.length === 0) { container.innerHTML = "<p style='text-align:center; color:#999;'>لا توجد تقييمات بعد.</p>"; return; }
-        container.innerHTML = ratings.map(function(r) {
-            return '<div class="entry">' +
-                '<div class="entry-header"><span>المقيّم: ' + r.rater + '</span><span style="font-size:0.75rem; color:#888;">' + r.date + '</span></div>' +
-                '<div style="display:grid; grid-template-columns:1fr 1fr; gap:4px; font-size:0.85rem; margin-top:6px;">' +
-                    '<div>😃 فرحتك: ' + r.happy + '</div><div>🥰 دلعتك: ' + r.pamper + '</div>' +
-                    '<div>❤️ اهتميت بيك: ' + r.care + '</div><div>🥺 زعلتك: ' + r.sad + '</div>' +
-                    '<div>😤 ضايقتك: ' + r.annoy + '</div><div>💔 قصرت معاك: ' + r.short + '</div>' +
-                '</div>' +
-                (r.notes ? '<div class="sub-box">📝 <strong>ملاحظة:</strong> ' + r.notes + '</div>' : '') +
-                '<div class="action-btns"><button type="button" class="btn-sm btn-delete" onclick="deleteItem(\'app_ratings\', ' + r.id + ', loadRatings)">حذف 🗑️</button></div>' +
-            '</div>';
-        }).join('');
+    function saveGuide() {
+        var author = document.getElementById("guideAuthor").value;
+        var type = document.getElementById("guideType").value;
+        var text = document.getElementById("guideText").value.trim();
+
+        if(!text) return alert("يرجى كتابة نص الملاحظة أولاً!");
+
+        db.ref('guides').push({ author: author, type: type, text: text }, function(error) {
+            if(!error) {
+                document.getElementById("guideText").value = "";
+                alert("تمت الإضافة لدليل القلوب بنجاح 💡");
+            }
+        });
+    }
+
+    function saveWish() {
+        var author = document.getElementById("wishAuthor").value;
+        var title = document.getElementById("wishTitle").value.trim();
+        var text = document.getElementById("wishText").value.trim();
+
+        if(!title) return alert("يرجى كتابة عنوان الأمنية على الأقل!");
+
+        db.ref('wishes').push({ author: author, title: title, text: text }, function(error) {
+            if(!error) {
+                document.getElementById("wishTitle").value = "";
+                document.getElementById("wishText").value = "";
+                alert("تمت إضافة الهدف بنجاح 🎯");
+            }
+        });
     }
 
     function savePhoto() {
         var fileInput = document.getElementById("imgFile");
         var caption = document.getElementById("imgCaption").value.trim();
-        if (fileInput.files.length === 0) return alert("اختر صورة أولاً!");
-        
+        if(fileInput.files.length === 0) return alert("يرجى اختيار صورة أولاً!");
+
         var reader = new FileReader();
-        reader.onload = function (e) {
-            var photos = JSON.parse(localStorage.getItem("app_photos") || "[]");
-            photos.unshift({ id: Date.now(), url: e.target.result, caption: caption });
-            localStorage.setItem("app_photos", JSON.stringify(photos));
-            fileInput.value = "";
-            document.getElementById("imgCaption").value = "";
-            loadGallery();
-            alert("تم إضافة الصورة للألبوم! 🖼️");
+        reader.onload = function(e) {
+            db.ref('photos').push({
+                url: e.target.result,
+                caption: caption || "لحظة حلوة ❤️",
+                date: new Date().toLocaleDateString('ar-EG')
+            }, function(error) {
+                if(!error) {
+                    fileInput.value = "";
+                    document.getElementById("imgCaption").value = "";
+                    alert("تم رفع الصورة للألبوم السحابي بنجاح! 🖼️");
+                }
+            });
         };
         reader.readAsDataURL(fileInput.files[0]);
-    }
-
-    function loadGallery() {
-        var container = document.getElementById("galleryContainer");
-        var photos = JSON.parse(localStorage.getItem("app_photos") || "[]");
-        if(photos.length === 0) { container.innerHTML = "<p style='grid-column:1/3; text-align:center; color:#999;'>لا توجد صور بعد.</p>"; return; }
-        container.innerHTML = photos.map(function(p) {
-            return '<div>' +
-                '<img src="' + p.url + '">' +
-                '<div style="font-size:0.8rem; text-align:center; margin-top:3px;">' + p.caption + '</div>' +
-                '<div class="action-btns"><button type="button" class="btn-sm btn-delete" onclick="deleteItem(\'app_photos\', ' + p.id + ', loadGallery)">حذف 🗑️</button></div>' +
-            '</div>';
-        }).join('');
     }
 
     function saveCapsule() {
         var author = document.getElementById("capsuleAuthor").value;
         var unlockDate = document.getElementById("unlockDate").value;
         var text = document.getElementById("capsuleText").value.trim();
-        if(!unlockDate || !text) return alert("حدد التاريخ والرسالة!");
 
-        var capsules = JSON.parse(localStorage.getItem("app_capsules") || "[]");
-        capsules.unshift({ id: Date.now(), author: author, unlockDate: unlockDate, text: text });
-        localStorage.setItem("app_capsules", JSON.stringify(capsules));
-        document.getElementById("capsuleText").value = "";
-        loadCapsules();
-        alert("تم قفل الرسالة في الكبسولة! 🔒");
+        if(!unlockDate || !text) return alert("يرجى كتابة الرسالة وتحديد تاريخ الفتح!");
+
+        db.ref('capsules').push({
+            author: author, unlockDate: unlockDate, text: text
+        }, function(error) {
+            if(!error) {
+                document.getElementById("capsuleText").value = "";
+                alert("تم قفل الرسالة في كبسولة الزمن بنجاح 🔒");
+            }
+        });
     }
 
-    function loadCapsules() {
-        var container = document.getElementById("capsuleContainer");
-        var capsules = JSON.parse(localStorage.getItem("app_capsules") || "[]");
-        var today = new Date().toISOString().split('T')[0];
-
-        if(capsules.length === 0) { container.innerHTML = "<p style='text-align:center; color:#999;'>لا توجد رسائل موقوتة بعد.</p>"; return; }
-        container.innerHTML = capsules.map(function(c) {
-            return '<div class="sub-box" style="border:1px dashed var(--primary); padding:10px;">' +
-                '<div style="font-weight:bold; color:var(--primary);">' + c.author + '</div>' +
-                '<div style="font-size:0.8rem; color:#666;">موعد الفتح: ' + c.unlockDate + '</div>' +
-                '<hr style="border:0; border-top:1px dashed #ffd1d9; margin:6px 0;">' +
-                (today >= c.unlockDate ? '<div>🔓 <strong>الرسالة:</strong> ' + c.text + '</div>' : '<div style="color:#888;">🔒 <i>مغلقة حتى تاريخ ' + c.unlockDate + '</i></div>') +
-                '<div class="action-btns"><button type="button" class="btn-sm btn-delete" onclick="deleteItem(\'app_capsules\', ' + c.id + ', loadCapsules)">حذف 🗑️</button></div>' +
-            '</div>';
-        }).join('');
-    }
-
-    function deleteItem(key, id, reloadFn) {
-        if (confirm("هل أنت متأكد من الحذف؟")) {
-            var items = JSON.parse(localStorage.getItem(key) || "[]");
-            items = items.filter(function(i) { return i.id !== id; });
-            localStorage.setItem(key, JSON.stringify(items));
-            reloadFn();
+    function deleteItem(path, id) {
+        if(confirm("هل أنت متأكد من الحذف؟")) {
+            db.ref(path + '/' + id).remove();
         }
     }
 </script>
