@@ -109,11 +109,11 @@
         <!-- قسم اليوميات -->
         <div id="diaries" class="tab-section active">
             <div class="card">
-                <h3 id="diaryTitle">✍️ احكيلي يومك يا بطتي </h3>
+                <h3 id="diaryTitle">✍️ احكيلي يومك يا بطتي 🦆</h3>
                 <label>الكاتب:</label>
                 <select id="authorSelect" onchange="updateAuthorTitle()">
                     <option value="م. بطوط 👷‍♂️">م. بطوط 👷‍♂️</option>
-                    <option value="د. قطوطة 🩺">د. قطوطة 🩺</option>
+                    <option value="د. قطوطة 🩺">د. قطوطة 🩺🐱</option>
                 </select>
 
                 <label>الشعور الآن:</label>
@@ -155,8 +155,8 @@
                 <h3>⚠️ تقديم شكوى جديدة</h3>
                 <label>من مين:</label>
                 <select id="complainantSelect">
-                    <option value="م. بطوط 👷‍♂️">م. بطوط 👷‍♂️</option>
-                    <option value="د. قطوطة 🩺">د. قطوطة 🩺</option>
+                    <option value="م. بطوط 👷‍♂️🦆">م. بطوط 👷‍♂️🦆</option>
+                    <option value="د. قطوطة 🩺🐱">د. قطوطة 🩺🐱</option>
                 </select>
                 <label>موضوع الشكوى:</label>
                 <textarea id="complaintText" rows="3" placeholder="احكي الشكوى بالتفصيل..."></textarea>
@@ -174,8 +174,8 @@
                 <h3>📊 تقييم النهاردة</h3>
                 <label>المقيّم:</label>
                 <select id="raterSelect">
-                    <option value="م. بطوط 👷‍♂️">م. بطوط 👷‍♂️</option>
-                    <option value="د. قطوطة 🩺">د. قطوطة 🩺</option>
+                    <option value="م. بطوط 👷‍♂️🦆">م. بطوط 👷‍♂️🦆</option>
+                    <option value="د. قطوطة 🩺🐱">د. قطوطة 🩺🐱</option>
                 </select>
 
                 <label>فرحتك بنسبة: 😄</label>
@@ -187,7 +187,7 @@
                 <label>اهتميت بيك بنسبة: ❤️</label>
                 <select id="rCare"><option value="">اختر النسبة...</option><option>100%</option><option>80%</option><option>60%</option><option>40%</option><option>20%</option></select>
 
-                <label>الأدب والأخلاق بنسبة: 😇</label>
+                <label>الأدب والذوق بنسبة: 😇</label>
                 <select id="rManners"><option value="">اختر النسبة...</option><option>100%</option><option>80%</option><option>60%</option><option>40%</option><option>20%</option></select>
 
                 <label>زعلتك بنسبة: 🥺</label>
@@ -220,7 +220,7 @@
                 <label>الكاتب:</label>
                 <select id="guideAuthor">
                     <option value="م. بطوط 👷‍♂️">م. بطوط 👷‍♂️</option>
-                    <option value="د. قطوطة 🩺">د. قطوطة 🩺</option>
+                    <option value="د. قطوطة 🩺">د. قطوطة 🩺🐱</option>
                 </select>
 
                 <label>نوع الملاحظة:</label>
@@ -246,7 +246,7 @@
                 <label>صاحب الفكرة:</label>
                 <select id="wishAuthor">
                     <option value="م. بطوط 👷‍♂️">م. بطوط 👷‍♂️</option>
-                    <option value="د. قطوطة 🩺">د. قطوطة 🩺</option>
+                    <option value="د. قطوطة 🩺">د. قطوطة 🩺🐱</option>
                 </select>
                 <input type="text" id="wishTitle" placeholder="عنوان الأمنية أو المكان...">
                 <textarea id="wishText" rows="2" placeholder="تفاصيل الخطّة أو الفكرة..."></textarea>
@@ -277,8 +277,8 @@
             <div class="card">
                 <h3>💌 رسالة موقوتة</h3>
                 <select id="capsuleAuthor">
-                    <option value="م. بطوط 👷‍♂️">م. بطوط 👷‍♂️</option>
-                    <option value="د. قطوطة 🩺">د. قطوطة 🩺</option>
+                    <option value="م. بطوط 👷‍♂️🦆">م. بطوط 👷‍♂️🦆</option>
+                    <option value="د. قطوطة 🩺🐱">د. قطوطة 🩺🐱</option>
                 </select>
                 <label>تاريخ الفتح:</label>
                 <input type="date" id="unlockDate">
@@ -306,22 +306,27 @@
     };
 
     var db = null;
-    try {
-        if (typeof firebase !== 'undefined') {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.database();
-        }
-    } catch(e) {}
 
     var SECRET = "1234";
     var startDate = new Date("2024-03-28T00:00:00");
     var isInitialLoad = true;
 
     function checkPassword() {
-        var pass = document.getElementById("passInput").value;
+        var pass = document.getElementById("passInput").value.trim();
         if (pass === SECRET) {
             document.getElementById("login-screen").style.display = "none";
             document.getElementById("main-content").style.display = "block";
+            
+            // تهيئة Firebase عند الدخول المباشر
+            try {
+                if (typeof firebase !== 'undefined' && !db) {
+                    firebase.initializeApp(firebaseConfig);
+                    db = firebase.database();
+                }
+            } catch(e) {
+                console.log("Firebase Init error: ", e);
+            }
+
             initApp();
         } else {
             document.getElementById("errMsg").style.display = "block";
@@ -354,6 +359,8 @@
                     alert("تم تفعيل الإشعارات بنجاح! 🔔");
                 }
             });
+        } else {
+            alert("ميزة الإشعارات مفعلة داخل التطبيق تلقائياً! 🔔");
         }
     }
 
@@ -365,7 +372,7 @@
 
     function updateAuthorTitle() {
         var val = document.getElementById("authorSelect").value;
-        document.getElementById("diaryTitle").innerText = val.includes("بطوط") ? "✍️ احكيلي يومك يا بطتي " : "✍️ احكيلي يومك يا قطتي ";
+        document.getElementById("diaryTitle").innerText = val.includes("بطوط") ? "✍️ احكيلي يومك يا بطتي 🦆" : "✍️ احكيلي يومك يا قطتي 🐱";
     }
 
     function switchTab(tabId, btn) {
@@ -400,7 +407,4 @@
             if(!isInitialLoad) sendNotification("إشعار جديد ❤️", "تمت إضافة تدوينة جديدة في اليوميات!");
 
             container.innerHTML = entries.map(function(item) {
-                var repliesHtml = renderReplies('diaries', item.id, item.replies);
-                return '<div class="entry">' +
-                    '<div class="entry-header"><span>' + item.author + '</span><span>' + item.mood + '</span></div>' +
-                    (item.priorities ? '<div class="sub-box">📌 <str
+                var repliesHtml = re
