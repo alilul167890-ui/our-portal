@@ -298,6 +298,7 @@
     var firebaseConfig = {
       apiKey: "AIzaSyBV0igo0Nm-8VJHj9qItMx0lOrECdKCj1s",
       authDomain: "alii-ed72e.firebaseapp.com",
+      databaseURL: "https://alii-ed72e-default-rtdb.firebaseio.com",
       projectId: "alii-ed72e",
       storageBucket: "alii-ed72e.firebasestorage.app",
       messagingSenderId: "68913108218",
@@ -306,6 +307,15 @@
     };
 
     var db = null;
+
+    try {
+        if (typeof firebase !== 'undefined') {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+        }
+    } catch(e) {
+        console.log("Firebase Init Note: ", e);
+    }
 
     var SECRET = "1234";
     var startDate = new Date("2024-03-28T00:00:00");
@@ -316,17 +326,6 @@
         if (pass === SECRET) {
             document.getElementById("login-screen").style.display = "none";
             document.getElementById("main-content").style.display = "block";
-            
-            // تهيئة Firebase عند الدخول المباشر
-            try {
-                if (typeof firebase !== 'undefined' && !db) {
-                    firebase.initializeApp(firebaseConfig);
-                    db = firebase.database();
-                }
-            } catch(e) {
-                console.log("Firebase Init error: ", e);
-            }
-
             initApp();
         } else {
             document.getElementById("errMsg").style.display = "block";
@@ -359,8 +358,6 @@
                     alert("تم تفعيل الإشعارات بنجاح! 🔔");
                 }
             });
-        } else {
-            alert("ميزة الإشعارات مفعلة داخل التطبيق تلقائياً! 🔔");
         }
     }
 
@@ -407,4 +404,6 @@
             if(!isInitialLoad) sendNotification("إشعار جديد ❤️", "تمت إضافة تدوينة جديدة في اليوميات!");
 
             container.innerHTML = entries.map(function(item) {
-                var repliesHtml = re
+                var repliesHtml = renderReplies('diaries', item.id, item.replies);
+                return '<div class="entry">' +
+                    '<div class="entry-header"><span>' + 
