@@ -57,6 +57,9 @@
         .replies-section { margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border); }
         .reply-item { background: #f9f9f9; padding: 6px 10px; border-radius: 6px; margin-top: 4px; font-size: 0.82rem; }
         .reply-header { font-weight: bold; color: var(--primary); font-size: 0.75rem; }
+        
+        .gallery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .gallery-grid img { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; }
     </style>
 </head>
 <body>
@@ -74,6 +77,7 @@
 
     <!-- المحتوى الرئيسي -->
     <div id="main-content">
+        
         <div class="header">
             <h1>❤️ م. بطوط & د. قطوطة ❤️</h1>
             <p>معاً نسجنا غزل الحكايات، وتاريخٌ يبدأ ولا ينتهي... ✨</p>
@@ -96,6 +100,10 @@
             <button type="button" class="tab-btn active" onclick="switchTab('diaries', this)">📖 اليوميات</button>
             <button type="button" class="tab-btn" onclick="switchTab('complaints', this)">⚠️ شكوى</button>
             <button type="button" class="tab-btn" onclick="switchTab('rating', this)">📊 التقييم</button>
+            <button type="button" class="tab-btn" onclick="switchTab('guide', this)">💡 دليل القلوب</button>
+            <button type="button" class="tab-btn" onclick="switchTab('wishes', this)">🌟 الأهداف</button>
+            <button type="button" class="tab-btn" onclick="switchTab('gallery', this)">🖼️ اللحظات</button>
+            <button type="button" class="tab-btn" onclick="switchTab('capsule', this)">🔒 الكبسولة</button>
         </div>
 
         <!-- قسم اليوميات -->
@@ -103,14 +111,36 @@
             <div class="card">
                 <h3 id="diaryTitle">✍️ احكيلي يومك يا بطتي 🦆</h3>
                 <label>الكاتب:</label>
-                <select id="authorSelect">
+                <select id="authorSelect" onchange="updateAuthorTitle()">
                     <option value="م. بطوط 👷‍♂️">م. بطوط 👷‍♂️</option>
                     <option value="د. قطوطة 🩺">د. قطوطة 🩺🐱</option>
                 </select>
 
+                <label>الشعور الآن:</label>
+                <select id="moodSelect">
+                    <option value="اشتياق 🥺">اشتياق 🥺</option>
+                    <option value="حب ❤️">حب ❤️</option>
+                    <option value="هدوء 🕊️">هدوء 🕊️</option>
+                    <option value="نكد 😤">نكد 😤</option>
+                    <option value="ضيقة 💔">ضيقة 💔</option>
+                    <option value="زعل 🥺">زعل 🥺</option>
+                    <option value="عراك ⚡">عراك ⚡</option>
+                    <option value="اعتراف 💌">اعتراف 💌</option>
+                </select>
+
+                <label>تاريخ ووقت الذكرى:</label>
+                <input type="datetime-local" id="entryTime">
+
+                <label>أولويات النهاردة كانت إيه؟</label>
+                <textarea id="prioritiesText" rows="2" placeholder="أولوياتك اليوم..."></textarea>
+
+                <label>احكيلي موقف حصل معاك النهاردة:</label>
+                <textarea id="storyText" rows="2" placeholder="موقف عجبك أو معجبكش..."></textarea>
+
                 <label>كتابة يومية تفصيلية:</label>
                 <textarea id="diaryText" rows="3" placeholder="تفاصيل اليوم..."></textarea>
-                <button type="button" onclick="saveDiary()">إرسال التدوينة 🚀</button>
+
+                <button type="button" onclick="confirmAndSave('diary')">إرسال التدوينة 🚀</button>
             </div>
 
             <div class="card">
@@ -123,8 +153,14 @@
         <div id="complaints" class="tab-section">
             <div class="card">
                 <h3>⚠️ تقديم شكوى جديدة</h3>
+                <label>من مين:</label>
+                <select id="complainantSelect">
+                    <option value="م. بطوط 👷‍♂️🦆">م. بطوط 👷‍♂️🦆</option>
+                    <option value="د. قطوطة 🩺🐱">د. قطوطة 🩺🐱</option>
+                </select>
+                <label>موضوع الشكوى:</label>
                 <textarea id="complaintText" rows="3" placeholder="احكي الشكوى بالتفصيل..."></textarea>
-                <button type="button" style="background:#e63946;" onclick="saveComplaint()">إرسال الشكوى ⚠️</button>
+                <button type="button" style="background:#e63946;" onclick="confirmAndSave('complaint')">إرسال الشكوى ⚠️</button>
             </div>
             <div class="card">
                 <h3>📜 صندوق الشكاوى</h3>
@@ -132,14 +168,129 @@
             </div>
         </div>
 
-        <!-- قسم التقييم -->
+        <!-- التقييم -->
         <div id="rating" class="tab-section">
             <div class="card">
                 <h3>📊 تقييم النهاردة</h3>
+                <label>المقيّم:</label>
+                <select id="raterSelect">
+                    <option value="م. بطوط 👷‍♂️🦆">م. بطوط 👷‍♂️🦆</option>
+                    <option value="د. قطوطة 🩺🐱">د. قطوطة 🩺🐱</option>
+                </select>
+
+                <label>فرحتك بنسبة: 😄</label>
+                <select id="rHappy"><option value="">اختر النسبة...</option><option>100%</option><option>80%</option><option>60%</option><option>40%</option><option>20%</option></select>
+
+                <label>دلعتك بنسبة: 🥰</label>
+                <select id="rPamper"><option value="">اختر النسبة...</option><option>100%</option><option>80%</option><option>60%</option><option>40%</option><option>20%</option></select>
+
+                <label>اهتميت بيك بنسبة: ❤️</label>
+                <select id="rCare"><option value="">اختر النسبة...</option><option>100%</option><option>80%</option><option>60%</option><option>40%</option><option>20%</option></select>
+
+                <label>الأدب والذوق بنسبة: 😇</label>
+                <select id="rManners"><option value="">اختر النسبة...</option><option>100%</option><option>80%</option><option>60%</option><option>40%</option><option>20%</option></select>
+
+                <label>زعلتك بنسبة: 🥺</label>
+                <select id="rSad"><option value="">اختر النسبة...</option><option>0%</option><option>20%</option><option>40%</option><option>60%</option><option>80%</option><option>100%</option></select>
+
+                <label>ضايقتك بنسبة: 😤</label>
+                <select id="rAnnoy"><option value="">اختر النسبة...</option><option>0%</option><option>20%</option><option>40%</option><option>60%</option><option>80%</option><option>100%</option></select>
+
+                <label>قصرت معاك بنسبة: 💔</label>
+                <select id="rShort"><option value="">اختر النسبة...</option><option>0%</option><option>20%</option><option>40%</option><option>60%</option><option>80%</option><option>100%</option></select>
+
+                <label>البرود بنسبة: ❄️</label>
+                <select id="rCold"><option value="">اختر النسبة...</option><option>0%</option><option>20%</option><option>40%</option><option>60%</option><option>80%</option><option>100%</option></select>
+
+                <label>ملاحظات إضافية:</label>
                 <textarea id="rNotes" rows="2" placeholder="ملاحظات التقييم..."></textarea>
-                <button type="button" onclick="alert('تم حفظ التقييم بنجاح!')">إرسال التقييم 🚀</button>
+
+                <button type="button" onclick="confirmAndSave('rating')">إرسال التقييم 🚀</button>
+            </div>
+            <div class="card">
+                <h3>📜 سجل التقييمات</h3>
+                <div id="rateContainer"></div>
             </div>
         </div>
+
+        <!-- دليل القلوب -->
+        <div id="guide" class="tab-section">
+            <div class="card">
+                <h3>💡 أضيف لملاحظات دليل القلوب</h3>
+                <label>الكاتب:</label>
+                <select id="guideAuthor">
+                    <option value="م. بطوط 👷‍♂️">م. بطوط 👷‍♂️</option>
+                    <option value="د. قطوطة 🩺">د. قطوطة 🩺🐱</option>
+                </select>
+
+                <label>نوع الملاحظة:</label>
+                <select id="guideType">
+                    <option value="تفاصيل بتفرحني ✨">تفاصيل بتفرحني ✨</option>
+                    <option value="مواقف بتزعلني 🥺">مواقف بتزعلني 🥺</option>
+                    <option value="حاجات مفضلة ليا ❤️">حاجات مفضلة ليا ❤️</option>
+                </select>
+
+                <textarea id="guideText" rows="3" placeholder="اكتب الملاحظة بالتفصيل هنا..."></textarea>
+                <button type="button" onclick="confirmAndSave('guide')">إضافة للدليل 💡</button>
+            </div>
+            <div class="card">
+                <h3>📖 كتاب دليل القلوب المشترك</h3>
+                <div id="guideContainer"></div>
+            </div>
+        </div>
+
+        <!-- الأهداف -->
+        <div id="wishes" class="tab-section">
+            <div class="card">
+                <h3>🌟 أمنية أو هدف مشترك</h3>
+                <label>صاحب الفكرة:</label>
+                <select id="wishAuthor">
+                    <option value="م. بطوط 👷‍♂️">م. بطوط 👷‍♂️</option>
+                    <option value="د. قطوطة 🩺">د. قطوطة 🩺🐱</option>
+                </select>
+                <input type="text" id="wishTitle" placeholder="عنوان الأمنية أو المكان...">
+                <textarea id="wishText" rows="2" placeholder="تفاصيل الخطّة أو الفكرة..."></textarea>
+                <button type="button" onclick="confirmAndSave('wish')">إضافة للأهداف 🎯</button>
+            </div>
+            <div class="card">
+                <h3>قائمة أمنياتنا المستقبليّة ✨</h3>
+                <div id="wishContainer"></div>
+            </div>
+        </div>
+
+        <!-- اللحظات -->
+        <div id="gallery" class="tab-section">
+            <div class="card">
+                <h3>📸 إضافة صورة</h3>
+                <input type="file" id="imgFile" accept="image/*">
+                <input type="text" id="imgCaption" placeholder="وصف اللحظة...">
+                <button type="button" onclick="confirmAndSave('photo')">إضافة للألبوم 🖼️</button>
+            </div>
+            <div class="card">
+                <h3>🖼️ الألبوم</h3>
+                <div class="gallery-grid" id="galleryContainer"></div>
+            </div>
+        </div>
+
+        <!-- كبسولة الزمن -->
+        <div id="capsule" class="tab-section">
+            <div class="card">
+                <h3>💌 رسالة موقوتة</h3>
+                <select id="capsuleAuthor">
+                    <option value="م. بطوط 👷‍♂️🦆">م. بطوط 👷‍♂️🦆</option>
+                    <option value="د. قطوطة 🩺🐱">د. قطوطة 🩺🐱</option>
+                </select>
+                <label>تاريخ الفتح:</label>
+                <input type="date" id="unlockDate">
+                <textarea id="capsuleText" rows="3" placeholder="الرسالة..."></textarea>
+                <button type="button" onclick="confirmAndSave('capsule')">قفل الرسالة 🔒</button>
+            </div>
+            <div class="card">
+                <h3>🔒 صندوق الرسائل</h3>
+                <div id="capsuleContainer"></div>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -151,26 +302,30 @@
       projectId: "alii-ed72e",
       storageBucket: "alii-ed72e.firebasestorage.app",
       messagingSenderId: "68913108218",
-      appId: "1:68913108218:web:c0f14a0fcf31799dc82543"
+      appId: "1:68913108218:web:c0f14a0fcf31799dc82543",
+      measurementId: "G-RXCB3KTC4F"
     };
 
     var db = null;
+
+    try {
+        if (typeof firebase !== 'undefined') {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+        }
+    } catch(e) {
+        console.log("Firebase Init Note: ", e);
+    }
+
     var SECRET = "1234";
     var startDate = new Date("2024-03-28T00:00:00");
+    var isInitialLoad = true;
 
     function checkPassword() {
         var pass = document.getElementById("passInput").value.trim();
         if (pass === SECRET) {
             document.getElementById("login-screen").style.display = "none";
             document.getElementById("main-content").style.display = "block";
-            
-            try {
-                if (typeof firebase !== 'undefined' && !db) {
-                    firebase.initializeApp(firebaseConfig);
-                    db = firebase.database();
-                }
-            } catch(e) {}
-
             initApp();
         } else {
             document.getElementById("errMsg").style.display = "block";
@@ -186,15 +341,35 @@
             document.getElementById("seconds").innerText = Math.floor((diff / 1000) % 60);
         }, 1000);
 
-        if (db) loadDataRealtime();
+        var now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        if(document.getElementById('entryTime')) document.getElementById('entryTime').value = now.toISOString().slice(0, 16);
+        if(document.getElementById('unlockDate')) document.getElementById('unlockDate').min = new Date().toISOString().split('T')[0];
+
+        if (db) {
+            loadDataRealtime();
+        }
     }
 
     function requestNotificationPermission() {
         if ("Notification" in window) {
-            Notification.requestPermission().then(function(p) {
-                if(p === "granted") alert("تم تفعيل الإشعارات بنجاح! 🔔");
+            Notification.requestPermission().then(function(permission) {
+                if (permission === "granted") {
+                    alert("تم تفعيل الإشعارات بنجاح! 🔔");
+                }
             });
         }
+    }
+
+    function sendNotification(title, body) {
+        if (!isInitialLoad && "Notification" in window && Notification.permission === "granted") {
+            new Notification(title, { body: body, icon: "https://cdn-icons-png.flaticon.com/512/1077/1077035.png" });
+        }
+    }
+
+    function updateAuthorTitle() {
+        var val = document.getElementById("authorSelect").value;
+        document.getElementById("diaryTitle").innerText = val.includes("بطوط") ? "✍️ احكيلي يومك يا بطتي 🦆" : "✍️ احكيلي يومك يا قطتي 🐱";
     }
 
     function switchTab(tabId, btn) {
@@ -204,42 +379,31 @@
         document.getElementById(tabId).classList.add("active");
     }
 
+    function confirmAndSave(type) {
+        if (confirm("هل أنت متأكد من الإرسال؟")) {
+            if (type === 'diary') saveDiary();
+            if (type === 'complaint') saveComplaint();
+            if (type === 'rating') saveRating();
+            if (type === 'guide') saveGuide();
+            if (type === 'wish') saveWish();
+            if (type === 'photo') savePhoto();
+            if (type === 'capsule') saveCapsule();
+        }
+    }
+
     function loadDataRealtime() {
         if (!db) return;
+
+        // اليوميات
         db.ref('diaries').on('value', function(snapshot) {
             var container = document.getElementById("diaryContainer");
             var data = snapshot.val();
             if (!data) { container.innerHTML = "<p style='text-align:center; color:#999;'>لا توجد تدوينات بعد.</p>"; return; }
-            var entries = Object.keys(data).map(function(k) { return Object.assign({ id: k }, data[k]); }).reverse();
+            var entries = Object.keys(data).map(function(key) { return Object.assign({ id: key }, data[key]); }).reverse();
+            
+            if(!isInitialLoad) sendNotification("إشعار جديد ❤️", "تمت إضافة تدوينة جديدة في اليوميات!");
+
             container.innerHTML = entries.map(function(item) {
-                return '<div class="entry"><div class="entry-header"><span>' + item.author + '</span></div><div>' + item.text + '</div></div>';
-            }).join('');
-        });
-    }
-
-    function saveDiary() {
-        var text = document.getElementById("diaryText").value.trim();
-        var author = document.getElementById("authorSelect").value;
-        if(!text) return alert("اكتب شيئاً أولاً!");
-
-        if(db) {
-            db.ref('diaries').push({ author: author, text: text, date: new Date().toLocaleString('ar-EG') }, function(err) {
-                if(!err) { document.getElementById("diaryText").value = ""; alert("تم الحفظ بنجاح! ❤️"); }
-            });
-        }
-    }
-
-    function saveComplaint() {
-        var text = document.getElementById("complaintText").value.trim();
-        if(!text) return alert("اكتب الشكوى أولاً!");
-
-        if(db) {
-            db.ref('complaints').push({ text: text, date: new Date().toLocaleString('ar-EG') }, function(err) {
-                if(!err) { document.getElementById("complaintText").value = ""; alert("تم الإرسال! ⚠️"); }
-            });
-        }
-    }
-</script>
-
-</body>
-</html>
+                var repliesHtml = renderReplies('diaries', item.id, item.replies);
+                return '<div class="entry">' +
+                    '<div class="entry-header"><span>' + 
