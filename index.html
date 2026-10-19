@@ -53,6 +53,7 @@
         .btn-delete { background: #e63946; color: #fff; }
         .btn-toggle-replies { background: #457b9d; color: #fff; }
 
+        /* صندوق الردود المخفي */
         .replies-section { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); }
         .reply-item { background: #f8f9fa; padding: 8px; border-radius: 6px; margin-top: 6px; font-size: 0.82rem; border-right: 3px solid #457b9d; }
         
@@ -79,12 +80,6 @@
         <div class="header">
             <h1>❤️ م. بطوط & د. قطوطة ❤️</h1>
             <p>معاً نسجنا غزل الحكايات، وتاريخٌ يبدأ ولا ينتهي... ✨</p>
-        </div>
-
-        <!-- زرار تفعيل الإشعارات -->
-        <div class="card" style="text-align: center; background: var(--accent);">
-            <p style="margin: 0 0 8px 0; font-size: 0.9rem; font-weight: bold; color: var(--primary);">🔔 هل ترغب في تلقي إشعارات التحديثات؟</p>
-            <button type="button" style="background: #2a9d8f; width: auto; padding: 8px 20px; font-size: 0.85rem;" onclick="requestNotificationPermission()">تفعيل الإشعارات 🔔</button>
         </div>
 
         <!-- العداد -->
@@ -148,7 +143,7 @@
 
             <div class="card">
                 <h3>📖 سجل اليوميات</h3>
-                <div id="diaryContainer"><p style="text-align:center; color:#999;">جاري تحميل البيانات...</p></div>
+                <div id="diaryContainer"></div>
             </div>
         </div>
 
@@ -301,7 +296,6 @@
     const firebaseConfig = {
       apiKey: "AIzaSyBV0igo0Nm-8VJHj9qItMx0lOrECdKCj1s",
       authDomain: "alii-ed72e.firebaseapp.com",
-      databaseURL: "https://alii-ed72e-default-rtdb.firebaseio.com",
       projectId: "alii-ed72e",
       storageBucket: "alii-ed72e.firebasestorage.app",
       messagingSenderId: "68913108218",
@@ -323,29 +317,6 @@
             initApp();
         } else {
             document.getElementById("errMsg").style.display = "block";
-        }
-    }
-
-    function requestNotificationPermission() {
-        if ("Notification" in window) {
-            Notification.requestPermission().then(function(permission) {
-                if (permission === "granted") {
-                    alert("تم تفعيل الإشعارات بنجاح! 🔔");
-                } else {
-                    alert("تم رفض إذن الإشعارات.");
-                }
-            });
-        } else {
-            alert("متصفحك لا يدعم الإشعارات.");
-        }
-    }
-
-    function showAppNotification(title, bodyText) {
-        if ("Notification" in window && Notification.permission === "granted") {
-            new Notification(title, {
-                body: bodyText,
-                icon: "https://cdn-icons-png.flaticon.com/512/833/833472.png"
-            });
         }
     }
 
@@ -407,4 +378,20 @@
                 var rep = repliesObj[rk];
                 repliesHtml += '<div class="reply-item"><strong>' + rep.author + ':</strong> ' + rep.text + 
                                '<div style="font-size:0.7rem; color:#888;">' + rep.date + '</div></div>';
-   
+            });
+        } else {
+            repliesHtml = '<p style="font-size:0.8rem; color:#888; text-align:center; margin:5px 0;">لا توجد ردود بعد.</p>';
+        }
+
+        return '<div class="action-btns">' +
+                    '<button type="button" class="btn-sm btn-toggle-replies" onclick="toggleReplies(\'' + itemId + '\')">💬 الردود</button>' +
+                    '<button type="button" class="btn-sm btn-delete" onclick="deleteItem(\'' + sectionName + '\', \'' + itemId + '\')">حذف 🗑️</button>' +
+               '</div>' +
+               '<div id="replies-' + itemId + '" class="replies-section">' +
+                    '<div style="max-height:150px; overflow-y:auto;">' + repliesHtml + '</div>' +
+                    '<select id="reply-author-' + itemId + '" style="margin-top:6px; padding:6px; font-size:0.8rem;">' +
+                        '<option value="م. بطوط 👷‍♂️">م. بطوط 👷‍♂️</option>' +
+                        '<option value="د. قطوطة 🩺">د. قطوطة 🩺🐱</option>' +
+                    '</select>' +
+                    '<textarea id="reply-text-' + itemId + '" rows="1" placeholder="اكتب ردك هنا..." style="margin-top:4px; padding:6px; font-size:0.8rem;"></textarea>' +
+                    '<button type="button" class="btn-sm" style="width:100%; margin-top:4px; padding:6px;" onclick="sendReply(\'' + sectionName + '
