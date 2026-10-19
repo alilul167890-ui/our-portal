@@ -148,7 +148,7 @@
 
             <div class="card">
                 <h3>📖 سجل اليوميات</h3>
-                <div id="diaryContainer"></div>
+                <div id="diaryContainer"><p style="text-align:center; color:#999;">جاري تحميل البيانات...</p></div>
             </div>
         </div>
 
@@ -314,6 +314,7 @@
     var SECRET = "1234";
     var startDate = new Date("2024-03-28T00:00:00");
 
+    // فتح الشاشة الرئيسية فوراً عند كتابة كلمة السر الصح
     function checkPassword() {
         var pass = document.getElementById("passInput").value;
         if (pass === SECRET) {
@@ -325,7 +326,6 @@
         }
     }
 
-    // زرار طلب إذن الإشعارات يدوياً
     function requestNotificationPermission() {
         if ("Notification" in window) {
             Notification.requestPermission().then(function(permission) {
@@ -407,6 +407,4 @@
                 var rep = repliesObj[rk];
                 repliesHtml += '<div class="reply-item"><strong>' + rep.author + ':</strong> ' + rep.text + 
                                '<div style="font-size:0.7rem; color:#888;">' + rep.date + '</div></div>';
-            });
-        } else {
-            repliesHtml = '<p style="font-size:0.8rem; color:#888; tex
+            })
