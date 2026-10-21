@@ -6,7 +6,7 @@
     <title>مساحتنا الخاصة | م. بطوط & د. قطوطة</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     
-    <!-- مكتبات Firebase المستقرة المباشرة -->
+    <!-- مكتبات Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -36,7 +36,7 @@
         .timer-box span { display: block; font-size: 1.1rem; font-weight: bold; color: var(--primary); }
         
         .nav-tabs { display: flex; flex-wrap: wrap; gap: 4px; background: #fff; padding: 5px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border); }
-        .tab-btn { background: transparent; color: #666; padding: 8px 2px; border-radius: 8px; font-size: 0.75rem; flex: 1 1 23%; margin: 0; }
+        .tab-btn { background: transparent; color: #666; padding: 8px 2px; border-radius: 8px; font-size: 0.75rem; flex: 1 1 23%; margin: 0; cursor: pointer; border: none; }
         .tab-btn.active { background: var(--primary); color: #fff; }
         
         .tab-section { display: none; }
@@ -62,7 +62,6 @@
 
 <div class="container">
 
-    <!-- المحتوى الرئيسي مباشرة -->
     <div id="main-content">
         
         <div class="header">
@@ -70,13 +69,13 @@
             <p>معاً نسجنا غزل الحكايات، وتاريخٌ يبدأ ولا ينتهي... ✨</p>
         </div>
 
-        <!-- زرار تفعيل الإشعارات ودليل الطلب -->
+        <!-- زرار تفعيل الإشعارات -->
         <div class="card" style="text-align: center; background: var(--accent);">
             <p style="margin: 0 0 8px 0; font-size: 0.9rem; font-weight: bold; color: var(--primary);">🔔 هل ترغب في تلقي إشعارات التحديثات والرسائل؟</p>
             <button type="button" id="notifBtn" style="background: #2a9d8f; width: auto; padding: 10px 22px; font-size: 0.9rem;" onclick="requestNotificationPermission()">تفعيل الإشعارات 🔔</button>
         </div>
 
-        <!-- العداد -->
+        <!-- العداد المستقل -->
         <div class="card">
             <h3 style="text-align:center; margin:0 0 10px 0; color:var(--primary);">⏳ رحلتنا معاً منذ 28 مارس 2024</h3>
             <div class="timer">
@@ -105,7 +104,7 @@
                 <label>الكاتب:</label>
                 <select id="authorSelect" onchange="updateAuthorTitle()">
                     <option value="م. بطوط 👷‍♂️">م. بطوط 👷‍♂️</option>
-                    <option value="د. قطوطة 🩺">د. قطوطة 🩺</option>
+                    <option value="د. قطوطة 🩺">د. قطوطة 🩺🐱</option>
                 </select>
 
                 <label>الشعور الآن:</label>
@@ -147,8 +146,8 @@
                 <h3>⚠️ تقديم شكوى جديدة</h3>
                 <label>من مين:</label>
                 <select id="complainantSelect">
-                    <option value="م. بطوط 👷‍♂️">م. بطوط 👷‍♂️</option>
-                    <option value="د. قطوطة 🩺">د. قطوطة 🩺</option>
+                    <option value="م. بطوط 👷‍♂️🦆">م. بطوط 👷‍♂️🦆</option>
+                    <option value="د. قطوطة 🩺🐱">د. قطوطة 🩺🐱</option>
                 </select>
                 <label>موضوع الشكوى:</label>
                 <textarea id="complaintText" rows="3" placeholder="احكي الشكوى بالتفصيل..."></textarea>
@@ -290,7 +289,7 @@
     var db = null;
     var startDate = new Date("2024-03-28T00:00:00");
 
-    // 1. تشغيل العداد فوراً بدون أي تأخير
+    // تشغيل العداد فوراً وبشكل مستقل لا يقبل التعطيل
     function startTimer() {
         function update() {
             var diff = new Date() - startDate;
@@ -305,15 +304,17 @@
         setInterval(update, 1000);
     }
 
-    // 2. تهيئة الفايربيس والبيانات
-    function initFirebase() {
-        startTimer();
-
-        var now = new Date();
-        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    // تشغيل العداد وتاريخ اليوم فوراً عند تحميل الكود
+    startTimer();
+    var now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.addEventListener("DOMContentLoaded", function() {
         if(document.getElementById('entryTime')) document.getElementById('entryTime').value = now.toISOString().slice(0, 16);
         if(document.getElementById('unlockDate')) document.getElementById('unlockDate').min = new Date().toISOString().split('T')[0];
+    });
 
+    // محاولة الاتصال بقاعدة البيانات في الخلفية بدون أي تأثير على الأزرار
+    setTimeout(function() {
         const firebaseConfig = {
           apiKey: "AIzaSyBV0igo0Nm-8VJHj9qItMx0lOrECdKCj1s",
           authDomain: "alii-ed72e.firebaseapp.com",
@@ -332,13 +333,9 @@
                 loadDataRealtime();
             }
         } catch(e) {
-            console.log("Firebase error:", e);
+            console.log("Firebase background connection error:", e);
         }
-
-        checkNotificationStatus();
-    }
-
-    window.onload = initFirebase;
+    }, 500);
 
     function checkNotificationStatus() {
         if ("Notification" in window && Notification.permission === "granted") {
@@ -349,6 +346,7 @@
             }
         }
     }
+    checkNotificationStatus();
 
     function requestNotificationPermission() {
         if ("Notification" in window) {
@@ -410,4 +408,311 @@
             replyKeys.forEach(function(rk) {
                 var rep = repliesObj[rk];
                 repliesHtml += '<div class="reply-item"><strong>' + rep.author + ':</strong> ' + rep.text + 
-                               '<di
+                               '<div style="font-size:0.7rem; color:#888;">' + rep.date + '</div></div>';
+            });
+        } else {
+            repliesHtml = '<p style="font-size:0.8rem; color:#888; text-align:center; margin:5px 0;">لا توجد ردود بعد.</p>';
+        }
+
+        return '<div class="action-btns">' +
+                    '<button type="button" class="btn-sm btn-toggle-replies" onclick="toggleReplies(\'' + itemId + '\')">💬 الردود</button>' +
+                    '<button type="button" class="btn-sm btn-delete" onclick="deleteItem(\'' + sectionName + '\', \'' + itemId + '\')">حذف 🗑️</button>' +
+               '</div>' +
+               '<div id="replies-' + itemId + '" class="replies-section">' +
+                    '<div style="max-height:150px; overflow-y:auto;">' + repliesHtml + '</div>' +
+                    '<select id="reply-author-' + itemId + '" style="margin-top:6px; padding:6px; font-size:0.8rem;">' +
+                        '<option value="م. بطوط 👷‍♂️">م. بطوط 👷‍♂️</option>' +
+                        '<option value="د. قطوطة 🩺">د. قطوطة 🩺🐱</option>' +
+                    '</select>' +
+                    '<textarea id="reply-text-' + itemId + '" rows="1" placeholder="اكتب ردك هنا..." style="margin-top:4px; padding:6px; font-size:0.8rem;"></textarea>' +
+                    '<button type="button" class="btn-sm" style="width:100%; margin-top:4px; padding:6px;" onclick="sendReply(\'' + sectionName + '\', \'' + itemId + '\')">إرسال الرد 💌</button>' +
+               '</div>';
+    }
+
+    function sendReply(sectionName, itemId) {
+        var author = document.getElementById("reply-author-" + itemId).value;
+        var text = document.getElementById("reply-text-" + itemId).value.trim();
+        if(!text) return alert("يرجى كتابة نص الرد أولاً!");
+        if(!db) return alert("جاري الاتصال بقواعد البيانات...");
+
+        db.ref(sectionName + '/' + itemId + '/replies').push({
+            author: author,
+            text: text,
+            date: new Date().toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' })
+        }, function(error) {
+            if(!error) {
+                document.getElementById("reply-text-" + itemId).value = "";
+                showAppNotification("رد جديد ❤️", author + " رد على أحد المنشورات!");
+            }
+        });
+    }
+
+    function loadDataRealtime() {
+        if(!db) return;
+
+        db.ref('diaries').on('value', function(snapshot) {
+            var container = document.getElementById("diaryContainer");
+            var data = snapshot.val();
+            if (!data) { container.innerHTML = "<p style='text-align:center; color:#999;'>لا توجد تدوينات بعد.</p>"; return; }
+            var entries = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
+            container.innerHTML = entries.map(function(item) {
+                return '<div class="entry">' +
+                    '<div class="entry-header"><span>' + item.author + '</span><span>' + item.mood + '</span></div>' +
+                    (item.priorities ? '<div class="sub-box">📌 <strong>الأولويات:</strong> ' + item.priorities + '</div>' : '') +
+                    (item.story ? '<div class="sub-box">📖 <strong>الموقف:</strong> ' + item.story + '</div>' : '') +
+                    (item.text ? '<div style="margin-top:6px;">' + item.text + '</div>' : '') +
+                    '<div style="font-size:0.75rem; color:#999; margin-top:6px;">📅 ' + item.formattedDate + '</div>' +
+                    renderRepliesSection('diaries', item.id, item.replies) +
+                '</div>';
+            }).join('');
+        });
+
+        db.ref('complaints').on('value', function(snapshot) {
+            var container = document.getElementById("complaintContainer");
+            var data = snapshot.val();
+            if (!data) { container.innerHTML = "<p style='text-align:center; color:#999;'>لا توجد شكاوى مسجلة.</p>"; return; }
+            var complaints = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
+            container.innerHTML = complaints.map(function(c) {
+                return '<div class="entry" style="border-right-color:#e63946;">' +
+                    '<div class="entry-header" style="color:#e63946;"><span>الشاكي: ' + c.complainant + '</span></div>' +
+                    '<div class="sub-box">⚠️ <strong>الشكوى:</strong> ' + c.text + '</div>' +
+                    '<div style="font-size:0.75rem; color:#999; margin-top:6px;">📅 ' + c.date + '</div>' +
+                    renderRepliesSection('complaints', c.id, c.replies) +
+                '</div>';
+            }).join('');
+        });
+
+        db.ref('ratings').on('value', function(snapshot) {
+            var container = document.getElementById("rateContainer");
+            var data = snapshot.val();
+            if (!data) { container.innerHTML = "<p style='text-align:center; color:#999;'>لا توجد تقييمات بعد.</p>"; return; }
+            var ratings = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
+            container.innerHTML = ratings.map(function(r) {
+                return '<div class="entry">' +
+                    '<div class="entry-header"><span>المقيّم: ' + r.rater + '</span><span>📅 ' + r.date + '</span></div>' +
+                    '<div class="sub-box">😄 فرحتك: ' + r.happy + ' | 🥰 دلعتك: ' + r.pamper + ' | ❤️ اهتميت: ' + r.care + '</div>' +
+                    '<div class="sub-box">😇 الأدب: ' + (r.manners || '100%') + ' | 🥺 زعلتك: ' + r.sad + ' | 😤 ضايقتك: ' + r.annoy + '</div>' +
+                    '<div class="sub-box">💔 قصرت: ' + r.short + ' | ❄️ البرود: ' + (r.cold || '0%') + '</div>' +
+                    (r.notes ? '<div style="margin-top:6px;"><strong>ملاحظات:</strong> ' + r.notes + '</div>' : '') +
+                    renderRepliesSection('ratings', r.id, r.replies) +
+                '</div>';
+            }).join('');
+        });
+
+        db.ref('guides').on('value', function(snapshot) {
+            var container = document.getElementById("guideContainer");
+            var data = snapshot.val();
+            if (!data) { container.innerHTML = "<p style='text-align:center; color:#999;'>لا توجد ملاحظات مسجلة بعد.</p>"; return; }
+            var items = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
+            container.innerHTML = items.map(function(g) {
+                return '<div class="entry">' +
+                    '<div class="entry-header"><span>' + g.author + '</span><span>' + g.type + '</span></div>' +
+                    '<div class="sub-box" style="margin-top:6px;">' + g.text + '</div>' +
+                    renderRepliesSection('guides', g.id, g.replies) +
+                '</div>';
+            }).join('');
+        });
+
+        db.ref('wishes').on('value', function(snapshot) {
+            var container = document.getElementById("wishContainer");
+            var data = snapshot.val();
+            if (!data) { container.innerHTML = "<p style='text-align:center; color:#999;'>لا توجد أهداف مسجلة بعد.</p>"; return; }
+            var items = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
+            container.innerHTML = items.map(function(w) {
+                return '<div class="entry" style="border-right-color:#ffb703;">' +
+                    '<div class="entry-header" style="color:#fb8500;"><span>🎯 ' + w.title + '</span><span>بقلم: ' + w.author + '</span></div>' +
+                    (w.text ? '<div class="sub-box">' + w.text + '</div>' : '') +
+                    renderRepliesSection('wishes', w.id, w.replies) +
+                '</div>';
+            }).join('');
+        });
+
+        db.ref('photos').on('value', function(snapshot) {
+            var container = document.getElementById("galleryContainer");
+            var data = snapshot.val();
+            if (!data) { container.innerHTML = "<p style='text-align:center; color:#999; grid-column: span 2;'>لا توجد صور بعد.</p>"; return; }
+            var photos = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
+            container.innerHTML = photos.map(function(p) {
+                return '<div>' +
+                    '<img src="' + p.url + '" alt="صورة">' +
+                    '<p style="font-size:0.8rem; text-align:center; margin:4px 0;">' + p.caption + '</p>' +
+                    '<button type="button" class="btn-sm btn-delete" style="width:100%;" onclick="deleteItem(\'photos\', \'' + p.id + '\')">حذف 🗑️</button>' +
+                '</div>';
+            }).join('');
+        });
+
+        db.ref('capsules').on('value', function(snapshot) {
+            var container = document.getElementById("capsuleContainer");
+            var data = snapshot.val();
+            if (!data) { container.innerHTML = "<p style='text-align:center; color:#999;'>لا توجد رسائل موقوتة.</p>"; return; }
+            var capsules = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
+            var todayStr = new Date().toISOString().split('T')[0];
+            container.innerHTML = capsules.map(function(cap) {
+                var canOpen = todayStr >= cap.unlockDate;
+                return '<div class="entry">' +
+                    '<div class="entry-header"><span>الكاتب: ' + cap.author + '</span><span>🔒 تفتح في: ' + cap.unlockDate + '</span></div>' +
+                    (canOpen ? '<div class="sub-box" style="margin-top:8px;">💌 <strong>الرسالة:</strong> ' + cap.text + '</div>' : '<div class="sub-box" style="color:#e63946; margin-top:8px;">🔒 هذه الرسالة مغلقة ولن تفتح إلا في التاريخ المحدد!</div>') +
+                    renderRepliesSection('capsules', cap.id, cap.replies) +
+                '</div>';
+            }).join('');
+        });
+    }
+
+    function saveDiary() {
+        var author = document.getElementById("authorSelect").value;
+        var mood = document.getElementById("moodSelect").value;
+        var customDate = document.getElementById("entryTime").value;
+        var priorities = document.getElementById("prioritiesText").value.trim();
+        var story = document.getElementById("storyText").value.trim();
+        var text = document.getElementById("diaryText").value.trim();
+
+        if(!text && !story && !priorities) return alert("يرجى ملء خانة واحدة على الأقل!");
+        var entryDate = customDate ? new Date(customDate) : new Date();
+
+        db.ref('diaries').push({
+            author: author, mood: mood, priorities: priorities, story: story, text: text,
+            formattedDate: entryDate.toLocaleString('ar-EG', { dateStyle: 'full', timeStyle: 'short' })
+        }, function(error) {
+            if (!error) {
+                document.getElementById("prioritiesText").value = "";
+                document.getElementById("storyText").value = "";
+                document.getElementById("diaryText").value = "";
+                alert("تم حفظ التدوينة أونلاين بنجاح! ❤️");
+                showAppNotification("تدوينة جديدة 📖", author + " كتب تدوينة جديدة في اليوميات!");
+            }
+        });
+    }
+
+    function saveComplaint() {
+        var complainant = document.getElementById("complainantSelect").value;
+        var text = document.getElementById("complaintText").value.trim();
+        if(!text) return alert("يرجى كتابة تفاصيل الشكوى!");
+
+        db.ref('complaints').push({
+            complainant: complainant, text: text,
+            date: new Date().toLocaleString('ar-EG', { dateStyle: 'full', timeStyle: 'short' })
+        }, function(error) {
+            if (!error) {
+                document.getElementById("complaintText").value = "";
+                alert("تم إرسال الشكوى أونلاين! ⚠️");
+                showAppNotification("شكوى جديدة ⚠️", complainant + " سجل شكوى جديدة!");
+            }
+        });
+    }
+
+    function saveRating() {
+        var rater = document.getElementById("raterSelect").value;
+        var happy = document.getElementById("rHappy").value;
+        var pamper = document.getElementById("rPamper").value;
+        var care = document.getElementById("rCare").value;
+        var manners = document.getElementById("rManners").value;
+        var sad = document.getElementById("rSad").value;
+        var annoy = document.getElementById("rAnnoy").value;
+        var short = document.getElementById("rShort").value;
+        var cold = document.getElementById("rCold").value;
+
+        if(!happy || !pamper || !care || !manners || !sad || !annoy || !short || !cold) {
+            return alert("يرجى اختيار جميع نسب التقييم أولاً!");
+        }
+
+        db.ref('ratings').push({
+            rater: rater, happy: happy, pamper: pamper, care: care, manners: manners, sad: sad, annoy: annoy, short: short, cold: cold,
+            notes: document.getElementById("rNotes").value.trim(),
+            date: new Date().toLocaleDateString('ar-EG', { dateStyle: 'full' })
+        }, function(error) {
+            if (!error) {
+                document.getElementById("rHappy").value = "";
+                document.getElementById("rPamper").value = "";
+                document.getElementById("rCare").value = "";
+                document.getElementById("rManners").value = "";
+                document.getElementById("rSad").value = "";
+                document.getElementById("rAnnoy").value = "";
+                document.getElementById("rShort").value = "";
+                document.getElementById("rCold").value = "";
+                document.getElementById("rNotes").value = "";
+                alert("تم إرسال التقييم بنجاح! 📊");
+                showAppNotification("تقييم جديد 📊", rater + " أضاف تقييم اليوم!");
+            }
+        });
+    }
+
+    function saveGuide() {
+        var author = document.getElementById("guideAuthor").value;
+        var type = document.getElementById("guideType").value;
+        var text = document.getElementById("guideText").value.trim();
+        if(!text) return alert("يرجى كتابة نص الملاحظة أولاً!");
+
+        db.ref('guides').push({ author: author, type: type, text: text }, function(error) {
+            if(!error) {
+                document.getElementById("guideText").value = "";
+                alert("تمت الإضافة لدليل القلوب بنجاح 💡");
+                showAppNotification("دليل القلوب 💡", author + " أضاف ملاحظة جديدة لدليل الفهم!");
+            }
+        });
+    }
+
+    function saveWish() {
+        var author = document.getElementById("wishAuthor").value;
+        var title = document.getElementById("wishTitle").value.trim();
+        var text = document.getElementById("wishText").value.trim();
+        if(!title) return alert("يرجى كتابة عنوان الأمنية على الأقل!");
+
+        db.ref('wishes').push({ author: author, title: title, text: text }, function(error) {
+            if(!error) {
+                document.getElementById("wishTitle").value = "";
+                document.getElementById("wishText").value = "";
+                alert("تمت إضافة الهدف بنجاح 🎯");
+                showAppNotification("هدف جديد 🎯", author + " أضاف أمنية جديدة لقائمة الأهداف!");
+            }
+        });
+    }
+
+    function savePhoto() {
+        var fileInput = document.getElementById("imgFile");
+        var caption = document.getElementById("imgCaption").value.trim();
+        if(fileInput.files.length === 0) return alert("يرجى اختيار صورة أولاً!");
+
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            db.ref('photos').push({
+                url: e.target.result,
+                caption: caption || "لحظة حلوة ❤️",
+                date: new Date().toLocaleDateString('ar-EG')
+            }, function(error) {
+                if(!error) {
+                    fileInput.value = "";
+                    document.getElementById("imgCaption").value = "";
+                    alert("تم رفع الصورة للألبوم السحابي بنجاح! 🖼️");
+                    showAppNotification("صورة جديدة 🖼️", "تمت إضافة لحظة جديدة للألبوم!");
+                }
+            });
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+    }
+
+    function saveCapsule() {
+        var author = document.getElementById("capsuleAuthor").value;
+        var unlockDate = document.getElementById("unlockDate").value;
+        var text = document.getElementById("capsuleText").value.trim();
+        if(!unlockDate || !text) return alert("يرجى كتابة الرسالة وتحديد تاريخ الفتح!");
+
+        db.ref('capsules').push({
+            author: author, unlockDate: unlockDate, text: text
+        }, function(error) {
+            if(!error) {
+                document.getElementById("capsuleText").value = "";
+                alert("تم قفل الرسالة في كبسولة الزمن بنجاح 🔒");
+                showAppNotification("كبسولة زمنية 🔒", author + " قفل رسالة جديدة في كبسولة الزمن!");
+            }
+        });
+    }
+
+    function deleteItem(path, id) {
+        if(confirm("هل أنت متأكد من الحذف؟")) {
+            db.ref(path + '/' + id).remove();
+        }
+    }
+</script>
+
+</body>
+</html>
