@@ -24,12 +24,10 @@
         .container { width: 100%; max-width: 500px; padding-bottom: 30px; }
         
         .card { background: var(--card); padding: 18px; border-radius: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 15px; border: 1px solid var(--border); }
-        #login-screen { text-align: center; margin-top: 40px; }
         
         input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 10px; font-size: 0.95rem; outline: none; background: #fff; }
         button { background: var(--primary); color: #fff; border: none; padding: 12px; border-radius: 10px; font-size: 1rem; font-weight: bold; cursor: pointer; width: 100%; margin-top: 8px; }
         
-        #main-content { display: none; }
         .header { text-align: center; padding: 10px 0; }
         .header h1 { color: var(--primary); margin: 5px 0; font-size: 1.7rem; }
         
@@ -64,18 +62,7 @@
 
 <div class="container">
 
-    <!-- شاشة الدخول الفورية -->
-    <div id="login-screen" class="card">
-        <h2>🔒 عالمنا الخاص</h2>
-        <p>أدخل كلمة السر لدخول عالم م. بطوط & د. قطوطة</p>
-        <form onsubmit="event.preventDefault(); checkPassword();">
-            <input type="password" id="passInput" placeholder="كلمة السر">
-            <button type="submit">دخول</button>
-        </form>
-        <p id="errMsg" style="color:red; display:none; margin-top:10px;">كلمة السر غير صحيحة!</p>
-    </div>
-
-    <!-- المحتوى الرئيسي -->
+    <!-- المحتوى الرئيسي مباشرة -->
     <div id="main-content">
         
         <div class="header">
@@ -83,10 +70,10 @@
             <p>معاً نسجنا غزل الحكايات، وتاريخٌ يبدأ ولا ينتهي... ✨</p>
         </div>
 
-        <!-- زرار تفعيل الإشعارات -->
+        <!-- زرار تفعيل الإشعارات ودليل الطلب -->
         <div class="card" style="text-align: center; background: var(--accent);">
-            <p style="margin: 0 0 8px 0; font-size: 0.9rem; font-weight: bold; color: var(--primary);">🔔 هل ترغب في تلقي إشعارات التحديثات؟</p>
-            <button type="button" style="background: #2a9d8f; width: auto; padding: 8px 20px; font-size: 0.85rem;" onclick="requestNotificationPermission()">تفعيل الإشعارات 🔔</button>
+            <p style="margin: 0 0 8px 0; font-size: 0.9rem; font-weight: bold; color: var(--primary);">🔔 هل ترغب في تلقي إشعارات التحديثات والرسائل؟</p>
+            <button type="button" id="notifBtn" style="background: #2a9d8f; width: auto; padding: 10px 22px; font-size: 0.9rem;" onclick="requestNotificationPermission()">تفعيل الإشعارات 🔔</button>
         </div>
 
         <!-- العداد -->
@@ -300,23 +287,13 @@
 </div>
 
 <script>
-    var SECRET = "1234";
     var db = null;
     var startDate = new Date("2024-03-28T00:00:00");
 
-    // دخول فوري بدون أي تأخير من السيرفر
-    function checkPassword() {
-        var pass = document.getElementById("passInput").value;
-        if (pass === SECRET) {
-            document.getElementById("login-screen").style.display = "none";
-            document.getElementById("main-content").style.display = "block";
-            
-            // تهيئة الفايربيس بعد الفتح الفوري
-            initFirebaseAndApp();
-        } else {
-            document.getElementById("errMsg").style.display = "block";
-        }
-    }
+    // تشغيل التطبيق فور تحميل الصفحة تلقائياً
+    window.addEventListener('DOMContentLoaded', function() {
+        initFirebaseAndApp();
+    });
 
     function initFirebaseAndApp() {
         const firebaseConfig = {
@@ -330,11 +307,13 @@
           measurementId: "G-RXCB3KTC4F"
         };
 
-        if (!firebase.apps.length) {
+        if (typeof firebase !== "undefined" && !firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+            loadDataRealtime();
         }
-        db = firebase.database();
 
+        // تشغيل العداد
         setInterval(function() {
             var diff = new Date() - startDate;
             document.getElementById("days").innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -348,20 +327,33 @@
         document.getElementById('entryTime').value = now.toISOString().slice(0, 16);
         document.getElementById('unlockDate').min = new Date().toISOString().split('T')[0];
 
-        loadDataRealtime();
+        checkNotificationStatus();
+    }
+
+    function checkNotificationStatus() {
+        if ("Notification" in window) {
+            if (Notification.permission === "granted") {
+                var btn = document.getElementById("notifBtn");
+                if (btn) {
+                    btn.innerText = "الإشعارات مفعلة 🔔";
+                    btn.style.background = "#457b9d";
+                }
+            }
+        }
     }
 
     function requestNotificationPermission() {
         if ("Notification" in window) {
             Notification.requestPermission().then(function(permission) {
                 if (permission === "granted") {
-                    alert("تم تفعيل الإشعارات بنجاح! 🔔");
+                    alert("تم تفعيل الإشعارات بنجاح! 🔔 سيوصلك إشعار بالردود والمشاركات الجديدة.");
+                    checkNotificationStatus();
                 } else {
-                    alert("تم رفض إذن الإشعارات.");
+                    alert("تم رفض إذن الإشعارات من المتصفح.");
                 }
             });
         } else {
-            alert("متصفحك لا يدعم الإشعارات.");
+            alert("متصفحك الحالي لا يدعم ميزة الإشعارات المباشرة.");
         }
     }
 
@@ -411,4 +403,10 @@
         var repliesHtml = '';
         if (repliesObj) {
             var replyKeys = Object.keys(repliesObj);
-         
+            replyKeys.forEach(function(rk) {
+                var rep = repliesObj[rk];
+                repliesHtml += '<div class="reply-item"><strong>' + rep.author + ':</strong> ' + rep.text + 
+                               '<div style="font-size:0.7rem; color:#888;">' + rep.date + '</div></div>';
+            });
+        } else {
+       
