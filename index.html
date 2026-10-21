@@ -6,7 +6,7 @@
     <title>مساحتنا الخاصة | م. بطوط & د. قطوطة</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     
-    <!-- مكتبات Firebase النسخة المستقرة السريعة جداً للموبايل -->
+    <!-- مكتبات Firebase السريعة والمستقرة -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -22,30 +22,40 @@
         * { box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
         body { background-color: var(--bg); color: var(--text); margin: 0; padding: 15px; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 500px; padding-bottom: 30px; }
+        
         .card { background: var(--card); padding: 18px; border-radius: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 15px; border: 1px solid var(--border); }
         #login-screen { text-align: center; margin-top: 40px; }
+        
         input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 10px; font-size: 0.95rem; outline: none; background: #fff; }
         button { background: var(--primary); color: #fff; border: none; padding: 12px; border-radius: 10px; font-size: 1rem; font-weight: bold; cursor: pointer; width: 100%; margin-top: 8px; }
+        
         #main-content { display: none; }
         .header { text-align: center; padding: 10px 0; }
         .header h1 { color: var(--primary); margin: 5px 0; font-size: 1.7rem; }
+        
         .timer { display: flex; justify-content: space-around; margin-top: 10px; }
         .timer-box { background: var(--accent); padding: 8px; border-radius: 10px; width: 22%; text-align: center; }
         .timer-box span { display: block; font-size: 1.1rem; font-weight: bold; color: var(--primary); }
+        
         .nav-tabs { display: flex; flex-wrap: wrap; gap: 4px; background: #fff; padding: 5px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border); }
         .tab-btn { background: transparent; color: #666; padding: 8px 2px; border-radius: 8px; font-size: 0.75rem; flex: 1 1 23%; margin: 0; }
         .tab-btn.active { background: var(--primary); color: #fff; }
+        
         .tab-section { display: none; }
         .tab-section.active { display: block; }
+        
         .entry { background: #fff; padding: 12px; border-right: 4px solid var(--primary); border-radius: 8px; margin-bottom: 10px; border: 1px solid #f0f0f0; border-right-width: 4px; }
         .entry-header { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: bold; color: var(--primary); }
         .sub-box { background: #fff8f9; padding: 6px 10px; border-radius: 6px; margin-top: 6px; font-size: 0.88rem; }
+        
         .action-btns { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; align-items: center; }
         .btn-sm { width: auto; padding: 5px 10px; font-size: 0.75rem; border-radius: 6px; margin: 0; }
         .btn-delete { background: #e63946; color: #fff; }
         .btn-toggle-replies { background: #457b9d; color: #fff; }
+
         .replies-section { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); }
         .reply-item { background: #f8f9fa; padding: 8px; border-radius: 6px; margin-top: 6px; font-size: 0.82rem; border-right: 3px solid #457b9d; }
+        
         .gallery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .gallery-grid img { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; }
     </style>
@@ -58,8 +68,10 @@
     <div id="login-screen" class="card">
         <h2>🔒 عالمنا الخاص</h2>
         <p>أدخل كلمة السر لدخول عالم م. بطوط & د. قطوطة</p>
-        <input type="password" id="passInput" placeholder="كلمة السر">
-        <button type="button" onclick="checkPassword()">دخول</button>
+        <form onsubmit="event.preventDefault(); checkPassword();">
+            <input type="password" id="passInput" placeholder="كلمة السر">
+            <button type="submit">دخول</button>
+        </form>
         <p id="errMsg" style="color:red; display:none; margin-top:10px;">كلمة السر غير صحيحة!</p>
     </div>
 
@@ -288,32 +300,55 @@
 </div>
 
 <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBV0igo0Nm-8VJHj9qItMx0lOrECdKCj1s",
-      authDomain: "alii-ed72e.firebaseapp.com",
-      databaseURL: "https://alii-ed72e-default-rtdb.firebaseio.com",
-      projectId: "alii-ed72e",
-      storageBucket: "alii-ed72e.firebasestorage.app",
-      messagingSenderId: "68913108218",
-      appId: "1:68913108218:web:c0f14a0fcf31799dc82543",
-      measurementId: "G-RXCB3KTC4F"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
     var SECRET = "1234";
+    var db = null;
     var startDate = new Date("2024-03-28T00:00:00");
 
+    // دخول فوري بدون أي تأخير من السيرفر
     function checkPassword() {
         var pass = document.getElementById("passInput").value;
         if (pass === SECRET) {
             document.getElementById("login-screen").style.display = "none";
             document.getElementById("main-content").style.display = "block";
-            initApp();
+            
+            // تهيئة الفايربيس بعد الفتح الفوري
+            initFirebaseAndApp();
         } else {
             document.getElementById("errMsg").style.display = "block";
         }
+    }
+
+    function initFirebaseAndApp() {
+        const firebaseConfig = {
+          apiKey: "AIzaSyBV0igo0Nm-8VJHj9qItMx0lOrECdKCj1s",
+          authDomain: "alii-ed72e.firebaseapp.com",
+          databaseURL: "https://alii-ed72e-default-rtdb.firebaseio.com",
+          projectId: "alii-ed72e",
+          storageBucket: "alii-ed72e.firebasestorage.app",
+          messagingSenderId: "68913108218",
+          appId: "1:68913108218:web:c0f14a0fcf31799dc82543",
+          measurementId: "G-RXCB3KTC4F"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        db = firebase.database();
+
+        setInterval(function() {
+            var diff = new Date() - startDate;
+            document.getElementById("days").innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
+            document.getElementById("hours").innerText = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            document.getElementById("minutes").innerText = Math.floor((diff / 1000 / 60) % 60);
+            document.getElementById("seconds").innerText = Math.floor((diff / 1000) % 60);
+        }, 1000);
+
+        var now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('entryTime').value = now.toISOString().slice(0, 16);
+        document.getElementById('unlockDate').min = new Date().toISOString().split('T')[0];
+
+        loadDataRealtime();
     }
 
     function requestNotificationPermission() {
@@ -337,23 +372,6 @@
                 icon: "https://cdn-icons-png.flaticon.com/512/833/833472.png"
             });
         }
-    }
-
-    function initApp() {
-        setInterval(function() {
-            var diff = new Date() - startDate;
-            document.getElementById("days").innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
-            document.getElementById("hours").innerText = Math.floor((diff / (1000 * 60 * 60)) % 24);
-            document.getElementById("minutes").innerText = Math.floor((diff / 1000 / 60) % 60);
-            document.getElementById("seconds").innerText = Math.floor((diff / 1000) % 60);
-        }, 1000);
-
-        var now = new Date();
-        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-        document.getElementById('entryTime').value = now.toISOString().slice(0, 16);
-        document.getElementById('unlockDate').min = new Date().toISOString().split('T')[0];
-
-        loadDataRealtime();
     }
 
     function updateAuthorTitle() {
@@ -393,10 +411,4 @@
         var repliesHtml = '';
         if (repliesObj) {
             var replyKeys = Object.keys(repliesObj);
-            replyKeys.forEach(function(rk) {
-                var rep = repliesObj[rk];
-                repliesHtml += '<div class="reply-item"><strong>' + rep.author + ':</strong> ' + rep.text + 
-                               '<div style="font-size:0.7rem; color:#888;">' + rep.date + '</div></div>';
-            });
-        } else {
-            repliesHtml = '<p style="f
+         
