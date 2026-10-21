@@ -6,7 +6,7 @@
     <title>مساحتنا الخاصة | م. بطوط & د. قطوطة</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     
-    <!-- مكتبات Firebase السريعة والمستقرة -->
+    <!-- مكتبات Firebase المستقرة المباشرة -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -105,7 +105,7 @@
                 <label>الكاتب:</label>
                 <select id="authorSelect" onchange="updateAuthorTitle()">
                     <option value="م. بطوط 👷‍♂️">م. بطوط 👷‍♂️</option>
-                    <option value="د. قطوطة 🩺">د. قطوطة 🩺🐱</option>
+                    <option value="د. قطوطة 🩺">د. قطوطة 🩺</option>
                 </select>
 
                 <label>الشعور الآن:</label>
@@ -147,8 +147,8 @@
                 <h3>⚠️ تقديم شكوى جديدة</h3>
                 <label>من مين:</label>
                 <select id="complainantSelect">
-                    <option value="م. بطوط 👷‍♂️🦆">م. بطوط 👷‍♂️🦆</option>
-                    <option value="د. قطوطة 🩺🐱">د. قطوطة 🩺🐱</option>
+                    <option value="م. بطوط 👷‍♂️">م. بطوط 👷‍♂️</option>
+                    <option value="د. قطوطة 🩺">د. قطوطة 🩺</option>
                 </select>
                 <label>موضوع الشكوى:</label>
                 <textarea id="complaintText" rows="3" placeholder="احكي الشكوى بالتفصيل..."></textarea>
@@ -290,12 +290,30 @@
     var db = null;
     var startDate = new Date("2024-03-28T00:00:00");
 
-    // تشغيل التطبيق فور تحميل الصفحة تلقائياً
-    window.addEventListener('DOMContentLoaded', function() {
-        initFirebaseAndApp();
-    });
+    // 1. تشغيل العداد فوراً بدون أي تأخير
+    function startTimer() {
+        function update() {
+            var diff = new Date() - startDate;
+            if (diff > 0) {
+                document.getElementById("days").innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
+                document.getElementById("hours").innerText = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                document.getElementById("minutes").innerText = Math.floor((diff / 1000 / 60) % 60);
+                document.getElementById("seconds").innerText = Math.floor((diff / 1000) % 60);
+            }
+        }
+        update();
+        setInterval(update, 1000);
+    }
 
-    function initFirebaseAndApp() {
+    // 2. تهيئة الفايربيس والبيانات
+    function initFirebase() {
+        startTimer();
+
+        var now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        if(document.getElementById('entryTime')) document.getElementById('entryTime').value = now.toISOString().slice(0, 16);
+        if(document.getElementById('unlockDate')) document.getElementById('unlockDate').min = new Date().toISOString().split('T')[0];
+
         const firebaseConfig = {
           apiKey: "AIzaSyBV0igo0Nm-8VJHj9qItMx0lOrECdKCj1s",
           authDomain: "alii-ed72e.firebaseapp.com",
@@ -307,37 +325,27 @@
           measurementId: "G-RXCB3KTC4F"
         };
 
-        if (typeof firebase !== "undefined" && !firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.database();
-            loadDataRealtime();
+        try {
+            if (typeof firebase !== "undefined" && !firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+                loadDataRealtime();
+            }
+        } catch(e) {
+            console.log("Firebase error:", e);
         }
-
-        // تشغيل العداد
-        setInterval(function() {
-            var diff = new Date() - startDate;
-            document.getElementById("days").innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
-            document.getElementById("hours").innerText = Math.floor((diff / (1000 * 60 * 60)) % 24);
-            document.getElementById("minutes").innerText = Math.floor((diff / 1000 / 60) % 60);
-            document.getElementById("seconds").innerText = Math.floor((diff / 1000) % 60);
-        }, 1000);
-
-        var now = new Date();
-        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-        document.getElementById('entryTime').value = now.toISOString().slice(0, 16);
-        document.getElementById('unlockDate').min = new Date().toISOString().split('T')[0];
 
         checkNotificationStatus();
     }
 
+    window.onload = initFirebase;
+
     function checkNotificationStatus() {
-        if ("Notification" in window) {
-            if (Notification.permission === "granted") {
-                var btn = document.getElementById("notifBtn");
-                if (btn) {
-                    btn.innerText = "الإشعارات مفعلة 🔔";
-                    btn.style.background = "#457b9d";
-                }
+        if ("Notification" in window && Notification.permission === "granted") {
+            var btn = document.getElementById("notifBtn");
+            if (btn) {
+                btn.innerText = "الإشعارات مفعلة 🔔";
+                btn.style.background = "#457b9d";
             }
         }
     }
@@ -346,14 +354,14 @@
         if ("Notification" in window) {
             Notification.requestPermission().then(function(permission) {
                 if (permission === "granted") {
-                    alert("تم تفعيل الإشعارات بنجاح! 🔔 سيوصلك إشعار بالردود والمشاركات الجديدة.");
+                    alert("تم تفعيل الإشعارات بنجاح! 🔔");
                     checkNotificationStatus();
                 } else {
                     alert("تم رفض إذن الإشعارات من المتصفح.");
                 }
             });
         } else {
-            alert("متصفحك الحالي لا يدعم ميزة الإشعارات المباشرة.");
+            alert("متصفحك لا يدعم الإشعارات.");
         }
     }
 
@@ -392,11 +400,7 @@
 
     function toggleReplies(id) {
         var box = document.getElementById("replies-" + id);
-        if (box.style.display === "block") {
-            box.style.display = "none";
-        } else {
-            box.style.display = "block";
-        }
+        if (box) box.style.display = (box.style.display === "block") ? "none" : "block";
     }
 
     function renderRepliesSection(sectionName, itemId, repliesObj) {
@@ -406,7 +410,4 @@
             replyKeys.forEach(function(rk) {
                 var rep = repliesObj[rk];
                 repliesHtml += '<div class="reply-item"><strong>' + rep.author + ':</strong> ' + rep.text + 
-                               '<div style="font-size:0.7rem; color:#888;">' + rep.date + '</div></div>';
-            });
-        } else {
-       
+                               '<di
